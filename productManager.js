@@ -13,7 +13,7 @@ class ProductModel {
 class Productmanager {
 
     constructor() {
-        this.path = "./database/productos.json";
+        this.path = "./productos.json";
         this.fs = require("fs");
         this.producs = [];
         this.id = 1;
