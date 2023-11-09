@@ -4,9 +4,9 @@ import { ProductManager } from "../productManager";
 
 const router = express.Router();
 
-const cm = new CartManager();
+const cm = new CartManager("./src/carrito.json");
 
-const pm = new ProductManager()
+const pm = new ProductManager("./src/productos.json");
 
 export class CartRouter {
     constructor() {
@@ -35,6 +35,10 @@ function addGetMethods() {
 }
 
 function addPostMethods() {
+    router.post("/", (req, res) => {
+        cm.createCart();
+    })
+
     router.post("/:cid/product/:pid", (req, res) => {
         const cid = parseInt(req.params.cid);
         const result = cm.obtenerCartByID(cid);

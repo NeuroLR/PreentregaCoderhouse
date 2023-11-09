@@ -24,18 +24,10 @@ export class CartManager {
         this.id = this.carts[this.carts.length - 1].id + 1;
         }
     }
-    createCart(products) {
-        if (!Array.isArray(products)) {
-            return 401;
-        }
-        const tempList = [];
-        for(let i = 0;i<products.length;i++) {
-            if(!(products[i] instanceof CartModal)) continue;
-            tempList.push(products[i]);
-        }
+    createCart() {
         const newCart = {
             id : this.id,
-            items: tempList
+            products: []
         }
         this.carts.push(newCart);
         this.guardarEnDB();
@@ -55,14 +47,14 @@ export class CartManager {
             return 401;
         }
         let existe = false;
-        for(elemento of item.items) {
+        for(elemento of item.products) {
             if(elemento.id == producto.id) {
                 elemento.quantity++;
                 existe = true;
                 break;
             }
         }
-        if(!existe) item.items.push(producto);
+        if(!existe) item.products.push(producto);
         this.guardarEnDB();
         return 200;
     }
