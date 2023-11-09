@@ -1,6 +1,6 @@
 import express from "express";
-import { CartManager } from "../cartManager";
-import { ProductManager } from "../productManager";
+import { CartManager } from "../cartManager.js";
+import { ProductManager } from "../productManager.js";
 
 const router = express.Router();
 
@@ -37,6 +37,7 @@ function addGetMethods() {
 function addPostMethods() {
     router.post("/", (req, res) => {
         cm.createCart();
+        return res.status(200).send("carrito creado con exito");
     })
 
     router.post("/:cid/product/:pid", (req, res) => {
@@ -47,6 +48,9 @@ function addPostMethods() {
         }
         const pid = parseInt(req.params.pid);
         const producto = pm.getProductById(pid);
+        if (producto == undefined) {
+            return res.status(402).send("el producto no existe");
+        }
         const codigo = cm.añadirProducto(cid, producto);
         if (codigo >= 400) {
             return res.status(codigo).send("no se encontro ningun carrito con ese id");
