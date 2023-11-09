@@ -1,18 +1,20 @@
 import fs from "fs";
 
-class ProductModel {
-    constructor(title, description, price, thumbnail, code, stock) {
+export class ProductModel {
+    constructor(title, description, code, price, status = true, thumbnail, stock, category) {
         this.id;
         this.title = title;
         this.description = description;
         this.price = price;
+        this.status = status;
         this.thumbnail = thumbnail;
         this.code = code;
         this.stock = stock;
+        this.category = category;
     }
 }
 
-export class Productmanager {
+export class ProductManager {
 
     constructor(path) {
         this.path = path;
@@ -56,9 +58,9 @@ export class Productmanager {
         }
         const result = this.fs.readFileSync(this.path, "utf-8");
         const producto = JSON.parse(result).find(product => product.id === productId)
-        return producto ?? "Product not found";
+        return producto;
     }
-    updateElement(id, clave, valor) {
+    updateProduct(id, newData) {
         if (typeof id != "number") {
             console.error("el id debe ser un valor numerico");
         }
@@ -67,44 +69,24 @@ export class Productmanager {
             console.warn("no se encontro un producto con ese id");
             return;
         }
-        if (typeof clave == "string") {
-            this.producs[producto][clave] = valor;
-            this.actualizarDB();
-            console.log(this.producs)
-        }else {
-            console.error("se tiene que pasar una clave con un valor de string");
-        }
-    }
-    updateProduct(id, newObj) {
-        if (typeof id != "number") {
-            console.error("el id debe ser un valor numerico");
-        }
-        const producto = this.producs.findIndex(product => product.id === id);
-        if (producto == null || producto == undefined) {
-            console.warn("no se encontro un producto con ese id");
-            return;
-        }
-        if(newObj instanceof ProductModel) {
-            newObj.id = id
-            this.producs[producto] = newObj
-            this.actualizarDB();
-            console.log(this.producs)
-        }else {
-            console.error("tenes que pasar una instancia de la clase ProductModel");
-        }
+        newData.id = id;
+        this.producs[producto] = newData;
+        this.actualizarDB();
+        console.log(this.producs);
     }
     deleteProduct(id) {
         if (typeof id != "number") {
             console.error("el id debe ser un valor numerico");
         }
         const producto = this.producs.findIndex(product => product.id === id);
-        if (producto == null || producto == undefined) {
+        if (producto == -1) {
             console.warn("no se encontro un producto con ese id");
-            return;
+            return undefined;
         }
-        this.producs.splice(producto, 1);
-        this.actualizarDB()
-        console.log(this.producs)
+        const borrado = this.producs.splice(producto, 1);
+        this.actualizarDB();
+        console.log(this.producs);
+        return borrado;
     }
     actualizarDB() {
         if (this.exist) {
@@ -120,28 +102,3 @@ export class Productmanager {
     });
     }
 }
-
-
-const pm = new Productmanager("./src/productos.json");
-const product1 = new ProductModel("titulo", "descripcion", 100, "thumbnail", "prueba123", 10);
-const product2 = new ProductModel("titulo2", "descripcion2", 100, "thumbnail2", "prueba2", 10);
-const product3 = new ProductModel("titulo3", "descripcion3", 300, "thumbnail3", "codigo3", 30);
-const product4 = new ProductModel("titulo4", "descripcion4", 400, "thumbnail4", "codigo4", 40);
-const productoVacio = new ProductModel();
-
-// pm.addProduct("123");
-// pm.addProduct(productoVacio);
-
-pm.addProduct(product1);
-pm.addProduct(product2);
-pm.addProduct(product3);
-pm.addProduct(product4);
-
-const product5 = new ProductModel("titulo5", "descripcion5", 500, "thumbnail5", "codigo5", 50);
-pm.updateElement(2, "title", "testeando123");
-pm.updateProduct(3, product5);
-pm.deleteProduct(1);
-
-// console.log(pm.getProducs());
-// console.log(pm.getProductById(10));
-// console.log(pm.getProductById(3));
