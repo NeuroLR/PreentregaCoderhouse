@@ -1,0 +1,60 @@
+<div class="container">
+    {{#each productos}}
+        <div class="product-container">
+            <p class="id-{{this.id}}">{{this.id}}</p>
+            <p>{{this.title}}</p>
+            <p>{{this.description}}</p>
+            <p>{{this.code}}</p>
+            <p>{{this.price}}</p>
+            <p>{{this.status}}</p>
+            <p>{{this.thumbnail}}</p>
+            <p>{{this.stock}}</p>
+            <p>{{this.category}}</p>
+        </div>
+    {{/each}}
+</div>
+
+<div class="form-container">
+    <div>
+        <p>title</p>
+        <input type="text" placeholder="title" id="title">
+    </div>
+    <div>
+        <p>description</p>
+        <input type="text" placeholder="description" id="description">
+    </div>
+    <div>
+        <p>code</p>
+        <input type="text" placeholder="code" id="code">
+    </div>
+    <div>
+        <p>price</p>
+        <input type="number" placeholder="price" id="price">
+    </div>
+    <div>
+        <p>thumbnail</p>
+        <input type="text" placeholder="thumbnail" id="thumbnail">
+    </div>
+    <div>
+        <p>stock</p>
+        <input type="number" placeholder="stock" id="stock">
+    </div>
+    <div>
+        <p>category</p>
+        <input type="text" placeholder="category" id="category">
+    </div>
+</div>
+
+<div class="btn-container">
+    <button id="btn-enviar">ENVIAR</button>
+</div>
+
+
+<div class="delete-container">
+    <h3>Borrar producto</h3>
+    <input type="number" placeholder="product id" id="inputDeleteProduct">
+    <button id="btn-borrar">BORRAR</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="./js/realTimeProducts.js"></script>

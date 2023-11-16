@@ -35,17 +35,18 @@ export class ProductManager {
     addProduct(newProduct) {
         if (!(newProduct instanceof ProductModel)) {
             console.error("Se debe pasar como parametro un objeto de tipo ProductModel");
-            return;
+            return 400;
         }
         const existeElCodigo = this.producs.find(producto =>producto.code === newProduct.code);
         if (existeElCodigo) {
             console.error("Ya hay un producto con el mismo codigo");
-            return;
+            return 401;
         }
         newProduct.id = this.id
         this.producs.push(newProduct);
         this.actualizarDB()
         this.id++;
+        return newProduct;
     }
     getProducs() {
         const result = this.fs.readFileSync(this.path, "utf-8");
@@ -77,6 +78,7 @@ export class ProductManager {
     deleteProduct(id) {
         if (typeof id != "number") {
             console.error("el id debe ser un valor numerico");
+            return 401;
         }
         const producto = this.producs.findIndex(product => product.id === id);
         if (producto == -1) {
@@ -85,8 +87,8 @@ export class ProductManager {
         }
         const borrado = this.producs.splice(producto, 1);
         this.actualizarDB();
-        console.log(this.producs);
-        return borrado;
+        console.log(borrado[0].id)
+        return borrado[0].id;
     }
     actualizarDB() {
         if (this.exist) {

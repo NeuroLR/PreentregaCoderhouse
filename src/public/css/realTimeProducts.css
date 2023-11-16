@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.product-container {
+    display: flex;
+    margin: 8px 16px;
+    font-size: 16px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 8px 16px;
+}
+
+.form-container div {
+    margin: 0 8px;
+}
+
+.btn-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.delete-container {
+    margin: 16px;
+}
