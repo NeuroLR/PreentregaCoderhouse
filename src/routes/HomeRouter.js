@@ -17,14 +17,31 @@ export class HomeRouter {
 
 function addGetMethods() {
     router.get("/", (req, res) => {
+        const {limit, page, query, sort} = req.query;
 
-        const products = pm.getProducs();
+        console.log(limit, page, query, sort)
 
-        const productsToObj = JSON.parse(products);
+        const products = pm.getProductsDB(limit, page, query, sort);
 
-        res.render("home", {
-            productos: productsToObj,
-            style: "home.css"
-        });
+        // const productsToObj = JSON.parse(products);
+
+        products.then(value => {
+            value.status = "success";
+            console.log(value)
+            
+            res.render("home", {
+                dbResult: [value],
+                style: "home.css"
+            })
+        }).catch(error => {
+            value.status = error
+
+            res.render("home", {
+                dbResult: [value],
+                style: "home.css"
+            })
+        }) 
+
+       
     })
 }

@@ -1,18 +1,6 @@
 import fs from "fs";
-
-export class ProductModel {
-    constructor(title, description, code, price, status = true, thumbnail, stock, category) {
-        this.id;
-        this.title = title;
-        this.description = description;
-        this.price = price;
-        this.status = status;
-        this.thumbnail = thumbnail;
-        this.code = code;
-        this.stock = stock;
-        this.category = category;
-    }
-}
+import model, { ProductModel } from "./model/productModel.js";
+import mongoose from "mongoose";
 
 export class ProductManager {
 
@@ -48,10 +36,22 @@ export class ProductManager {
         this.id++;
         return newProduct;
     }
-    getProducs() {
+
+    getProducsFS() {
         const result = this.fs.readFileSync(this.path, "utf-8");
         return result;
     }
+    async getProductsDB(limit, page, query, sort) {
+        const tempLimit = limit || 10;
+        const tempPage = page || 1;
+        const tempQuery = query || null;
+        const tempSort = sort || "null";
+        console.log(tempLimit, tempPage, tempQuery, tempSort);
+
+        const products = await model.paginate({query: tempQuery}, {limit: tempLimit, page: page, sort: tempSort})
+        return products;
+    }
+
     getProductById(productId) {
         if (typeof productId != "number") {
             console.error("¡Se debe ingresar un valor numerico para buscar el producto!");

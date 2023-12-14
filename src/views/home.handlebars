@@ -1,4 +1,16 @@
 <div class="container">
+    {{#each dbResult}}
+        <div class="product-container">
+            <p>status = {{this.status}}</p>
+            <p>payload = {{this.docs}}</p>
+            <p>totalPages = {{this.totalPages}}</p>
+            <p>page = {{this.page}}</p>
+            <p>hasPrevPage = {{this.hasPrevPage}}</p>
+            <p>hasNextPage = {{this.hasNextPage}}</p>
+            <p>prevLink = {{this.prevPage}}</p>
+            <p>nextLink = {{this.nextPage}}</p>
+        </div>
+    {{/each}}
     {{#each productos}}
         <div class="product-container">
             <p>{{this.title}}</p>

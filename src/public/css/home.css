@@ -6,6 +6,6 @@
 .product-container {
     display: flex;
     margin: 8px 16px;
-    justify-content: space-between;
+    flex-direction: column;
     flex-wrap: wrap;
 }

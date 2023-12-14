@@ -12,6 +12,8 @@ export class CartRouter {
     constructor() {
         addGetMethods();
         addPostMethods();
+        addDeleteMethods();
+        addPutMethods();
     }
 
     getRouter() {
@@ -22,7 +24,7 @@ export class CartRouter {
 function addGetMethods() {
     router.get("/:cid", (req, res) => {
         const id = parseInt(req.params.cid);
-        const result = cm.obtenerCartByID(id);
+        const result = cm.obtenerCartByIDMongo(id);
         if (result == undefined) {
             return res.status(401).send("No existe un carrito con ese id");
         }
@@ -34,9 +36,28 @@ function addGetMethods() {
     })
 }
 
+function addPutMethods() {
+    router.put("/:pid", (req, res) => {
+        const pid = parseInt(req.params.pid);
+        const newData = req.body;
+
+        console.log(newData)
+
+        res.json(newData)
+    })
+}
+
+function addDeleteMethods() {
+    router.delete("/:cid/products/:pid", (req, res) => {
+        const {cid, pid} = req.params;
+        console.log(cid, pid);
+        cm.deleteProductDB(pid)
+    })
+}
+
 function addPostMethods() {
     router.post("/", (req, res) => {
-        cm.createCart();
+        cm.createCartDB();
         return res.status(200).send("carrito creado con exito");
     })
 

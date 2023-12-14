@@ -1,14 +1,11 @@
 import fs from "fs";
-
-export class CartModal {
-    constructor(productId, quantity) {
-        this.productId = productId;
-        this.quantity = quantity;
-    }
-}
+import mongoose from "mongoose";
+import CartModel, { CartModal } from "./model/cartModel.js";
 
 export class CartManager {
     constructor(path) {
+        this.model = CartModel;
+
         this.path = path
         this.fs = fs;
         this.carts = [];
@@ -30,14 +27,35 @@ export class CartManager {
             products: []
         }
         this.carts.push(newCart);
-        this.guardarEnDB();
+        this.guardarEnFS();
     }
+
+    async createCartDB() {
+        const result = await this.model.create({
+            products: []
+        })
+        console.log(result);
+    }
+
 
     obtenerCartByID(cid) {
         const id = parseInt(cid);
         const busquedaEnDB = this.fs.readFileSync(this.path, "utf-8");
         const cart = JSON.parse(busquedaEnDB).find(cart => cart.id == id);
         return cart;
+    }
+
+    async obtenerCartByIDMongo(cid) {
+        if (typeof cid != "string") {
+            return 401;
+        }
+        try {
+            const result = await this.model.findById(cid).exec();
+            console.log(result)
+            return result;
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     añadirProducto(cid, producto) {
@@ -55,11 +73,18 @@ export class CartManager {
             }
         }
         if(!existe) item.products.push(producto);
-        this.guardarEnDB();
+        this.guardarEnFS();
         return 200;
     }
 
-    guardarEnDB() {
+    async añadirProductoDB(cid, producto) {
+        this.model.findOneAndUpdate(
+            {_id: cid},
+            {$push: {product: producto}}
+        )
+    }
+
+    guardarEnFS() {
         if(this.exist) {
             this.fs.unlinkSync(this.path);
         }
@@ -72,5 +97,8 @@ export class CartManager {
             this.exist = true;
             this.id++;
         })
+    }
+    async deleteProductDB(pid) {
+        return await this.model.deleteOne({productId: pid});
     }
 }

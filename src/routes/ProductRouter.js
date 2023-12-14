@@ -1,5 +1,7 @@
 import express from "express";
-import { ProductManager, ProductModel } from "../productManager.js";
+import { ProductManager } from "../productManager.js";
+import { ProductModel } from "../model/productModel.js";
+
 
 const router = express.Router()
 
@@ -91,7 +93,7 @@ function addPutMethods() {
     router.put("/products/:pid", (req, res) => {
         const pid = parseInt(req.params.pid);
         const newData = req.body;
-
+    
         const tempProduct = pm.getProductById(pid);
         if (tempProduct == undefined) {
             return res.status(404).send("El producto no existe");
