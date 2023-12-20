@@ -9,16 +9,17 @@ import { RealTimeProducts } from './routes/RealTimeProducts.js';
 import { ProductManager } from './productManager.js';
 import { ProductModel } from './model/productModel.js';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static(__dirname + "/public"));
+
 app.engine("handlebars", handlebars.engine());
 
 app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
-
-app.use(express.json());
-app.use(express.static(__dirname + "/public"));
-app.use(express.urlencoded({extended:true}));
 
 const productRouter = new ProductRouter().getRouter();
 const cartRouter = new CartRouter().getRouter();
@@ -26,7 +27,7 @@ const homeRouter = new HomeRouter().getRouter();
 const realTimeProducts = new RealTimeProducts().getRouter();
 
 app.use("/api", productRouter);
-app.use("/api/cart", cartRouter);
+app.use("/api/carts", cartRouter);
 app.use("/home", homeRouter);
 app.use("/realtimeproducts", realTimeProducts);
 
@@ -49,15 +50,23 @@ socketServer.on("connection", socket => {
         console.log(data)
     })
 
-    socket.on("addProduct", (title, description, code, price, thumbnail, stock, category) => {
-        const productModel = new ProductModel(title, description, code, price, true, thumbnail, stock, category);
-        const result = pm.addProduct(productModel);
-
-        socket.emit("addProduct", result);
+    socket.on("addProduct", async (title, description, code, price, thumbnail, stock, category) => {
+        try {
+            const result = await pm.addProductDB(title, description, code, price, true, thumbnail, stock, category);
+            console.log(result)
+            socket.emit("addProduct", result);
+        } catch(err) {
+            console.log(err)
+        }
     }) 
 
-    socket.on("deleteProduct", pid => {
-        const result = pm.deleteProduct(pid);
-        socket.emit("deleteProduct", result);
+    socket.on("deleteProduct", async (pid) => {
+        try {
+            const result = await pm.deleteProductDB(pid);
+            console.log(result)
+            socket.emit("deleteProduct", pid);
+        } catch (error) {
+            console.log(error)
+        }
     })
 })

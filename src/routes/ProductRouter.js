@@ -2,11 +2,9 @@ import express from "express";
 import { ProductManager } from "../productManager.js";
 import { ProductModel } from "../model/productModel.js";
 
-
-const router = express.Router()
+const router = express.Router();
 
 const pm = new ProductManager("./src/productos.json");
-
 export class ProductRouter  {
     constructor() {
         addGetMethods();
@@ -20,8 +18,9 @@ export class ProductRouter  {
 }
 
 function addGetMethods() {
-    router.get("/products", (req, res) => {
-        const productos = pm.getProducs();
+    router.get("/products", async (req, res) => {
+        const productos = await pm.getProductsDB();
+        console.log(productos);
     
         const limit = parseInt(req.query.limit);
 
@@ -30,22 +29,22 @@ function addGetMethods() {
         }
         
         if(limit >= 0) {
-            const productosToObj = JSON.parse(productos);
-            const cut = productosToObj.slice(0, limit);
+            const cut = productos.slice(0, limit);
             return res.status(200).json(cut);
         }else {
-            return res.status(200).json(JSON.parse(productos));
+            return res.status(200).json(productos);
         }
     });
 
-    router.get("/products/:pid", (req, res) => {
+    router.get("/products/:pid", async (req, res) => {
         try {
-            const id = parseInt(req.params.pid);
-            const item = pm.getProductById(id);
+            const id = req.params.pid;
+            const item = await pm.getProductByIdDB(id);
+            console.log(item)
             return res.status(200).json(item);
         } catch(e) {
-            console.error("ocurrio un error en el servidor", e);
-            return res.status(500).send("ocurrio un error");
+            console.error("error en productRouter", e);
+            return res.status(500).send("no existe un producto con ese id");
         }
     });
 }
@@ -59,7 +58,16 @@ function addPostMethods() {
         if (!esValido) {
             return res.status(404).json({
                 code: 404,
-                message: "Los datos ingresados son incorrectos"
+                message: "Los datos ingresados son incorrectos",
+                items: {
+                    titulo: title,
+                    description: description,
+                    code: code,
+                    price: price,
+                    status: status,
+                    stock: stock,
+                    category: category
+                }
             });
         }
 
@@ -71,60 +79,52 @@ function addPostMethods() {
                 message: "El elemento thumbnail debe ser un array"
             });
         }
-        try {
-            const producto = new ProductModel(title,description,code,price,status,thumbnail,stock,category)
-            pm.addProduct(producto);
-            return res.status(200).json({
+        const result = pm.addProductDB(title,description,code,price,status,thumbnail,stock,category);
+        result.then(value => {
+            res.status(200).json({
                 code: 200,
                 message: "Producto agregado con exito",
-                item: producto
+                item: value
             })
-        } catch(e) {
-            console.error("ocurrio un error añadiendo un producto", e);
-            return res.status(500).json({
-                code: 500,
-                message: "hubo un error en el servidor intentando agregar el producto"
+        }).catch(err => {
+            res.status(404).json({
+                code: 404,
+                message: "Hubo un error agregando el producto",
+                item: err
             })
-        }
+        })
     })
 }
 
 function addPutMethods() {
-    router.put("/products/:pid", (req, res) => {
-        const pid = parseInt(req.params.pid);
+    router.put("/products/:pid", async (req, res) => {
+        const pid = req.params.pid;
         const newData = req.body;
     
-        const tempProduct = pm.getProductById(pid);
-        if (tempProduct == undefined) {
-            return res.status(404).send("El producto no existe");
-        }
-        
-        for (const llave in newData) {
-            if (newData[llave] == undefined) continue;
-            if (tempProduct[llave] == undefined) continue;
-            tempProduct[llave] = newData[llave];
-        }
-
         try {
-            pm.updateProduct(pid, tempProduct);
+            const result = await pm.updateProductDB(pid, newData);
             return res.status(200).json({
                 code: 200,
                 message: "producto actualizado con exito!",
-                item: tempProduct
+                item: result
             })
-        } catch(e) {
-            res.status(500).send("ocurrio un error intentando actualizar el producto");
+        } catch(err) {
+            res.status(400).json({
+                code: 400,
+                message: "error actualizando el producto",
+                error: err
+            });
         }
     })
 }
 
 function addDeleteMethods() {
-    router.delete("/products/:pid", (req, res) => {
-        const pid = parseInt(req.params.pid);
+    router.delete("/products/:pid", async (req, res) => {
+        const pid = req.params.pid;
 
         try {
-            const item = pm.deleteProduct(pid);
-            if (item == undefined) {
+            const item = await pm.deleteProductDB(pid);
+            if (item == undefined || item == null) {
                 return res.status(404).send("el producto que se intenta eliminar no existe");
             }
             return res.status(200).json({
@@ -133,8 +133,12 @@ function addDeleteMethods() {
                 deletedItem: item
             })
 
-        } catch(e) {
-            res.status(500).send("ocurrio un error intentando eliminar el producto");
+        } catch(err) {
+            res.status(400).json({
+                code: 400,
+                message: "error borrando el producto, probablemente el producto no existe",
+                error: err
+            });
         }
     }) 
 } 

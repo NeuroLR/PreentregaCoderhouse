@@ -14,13 +14,13 @@ export class RealTimeProducts {
 }
 
 function addGetMethods() {
-    router.get("/", (req, res) => {
-        const products = pm.getProducs();
+    router.get("/", async (req, res) => {
+        const {limit, page, query, sort} = req.query
 
-        const productsToObj = JSON.parse(products);
-
+        const products = await pm.getProductsDB(limit, page, query, sort);
+        
         res.render("realTimeProducts", {
-            productos: productsToObj,
+            productos: products.docs,
             style: "realTimeProducts.css"
         });
     })

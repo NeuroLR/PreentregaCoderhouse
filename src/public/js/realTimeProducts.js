@@ -51,7 +51,7 @@ socket.on("addProduct", data => {
         }
 
         container.innerHTML += `<div class="product-container">
-            <p class="id-${data.id}">${data.id}</p>
+            <p class="id-${data._id}">${data._id}</p>
             <p>${data.title}</p>
             <p>${data.description}</p>
             <p>${data.code}</p>
@@ -70,8 +70,9 @@ btnBorrar.addEventListener("click", (e) => {
     e.preventDefault();
 
     try {
-        const pid = parseInt(inputDelete.value);
+        const pid = inputDelete.value;
         socket.emit("deleteProduct", pid)
+        inputDelete.value = "";
     } catch(e) {
         console.log(e);
     }
@@ -90,6 +91,7 @@ socket.on("deleteProduct", result => {
     }
     try {
         const producto = document.querySelector(`.id-${result}`);
+        console.log(result, producto);
         producto.parentElement.remove();
     } catch(e) {
         console.log(e);
